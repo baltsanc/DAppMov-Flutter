@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Flutter http-API',
-      home: WeatherPage(city: 'Guadalajara'),
+      home: WeatherPage(city: 'Monterrey'),
     );
   }
 }
