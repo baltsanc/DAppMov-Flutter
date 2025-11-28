@@ -9,43 +9,125 @@ class AddMoviePage extends StatefulWidget {
 }
 
 class _AddMoviePageState extends State<AddMoviePage> {
-  TextEditingController newMovieController = TextEditingController(text: '');
+  TextEditingController titleController = TextEditingController(text: '');
+  TextEditingController dateController = TextEditingController(text: '');
+  TextEditingController directorController = TextEditingController(text: '');
+  TextEditingController genreController = TextEditingController(text: '');
+  TextEditingController imageController = TextEditingController(text: '');
+  TextEditingController synopsisController = TextEditingController(text: '');
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Agrega una Película',
-          style: TextStyle(
-            fontSize: 18.0,
-            fontFamily: 'Roboto',
-            color: Colors.white70,
+          'Agregar Película',
+          style: TextStyle(fontSize: 18.0, fontFamily: 'Roboto'),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildTextField(
+                titleController,
+                'Título de la película',
+                'movie',
+              ),
+              const SizedBox(height: 15),
+
+              _buildTextField(
+                directorController,
+                'Nombre del Director',
+                'director',
+              ),
+              const SizedBox(height: 15),
+
+              _buildTextField(
+                genreController,
+                'Género (Ej: Ciencia Ficción)',
+                'genre',
+              ),
+              const SizedBox(height: 15),
+
+              _buildTextField(
+                dateController,
+                'Año de lanzamiento (YYYY)',
+                'date',
+              ),
+              const SizedBox(height: 15),
+
+              _buildTextField(imageController, 'URL de la imagen', 'image'),
+              const SizedBox(height: 15),
+
+              _buildTextField(
+                synopsisController,
+                'Sinopsis',
+                'synopsis',
+                maxLines: 5,
+              ),
+              const SizedBox(height: 30),
+
+              ElevatedButton.icon(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    await addMovieFull(
+                          titleController.text,
+                          dateController.text,
+                          directorController.text,
+                          genreController.text,
+                          imageController.text,
+                          synopsisController.text,
+                        )
+                        .then((_) {
+                          if (context.mounted) Navigator.pop(context);
+                        })
+                        .catchError((error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error al guardar: $error')),
+                          );
+                        });
+                  }
+                },
+                icon: const Icon(Icons.save),
+                label: const Text(
+                  'Guardar Película',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.red,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: newMovieController,
-              decoration: InputDecoration(
-                hintText: 'Ingresa nombre de la película',
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await addMovie(newMovieController.text).then((_) {
-                  Navigator.pop(context);
-                });
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
-        ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    String key, {
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: 'Ingresa el $label',
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor, ingresa el $label';
+        }
+        return null;
+      },
     );
   }
 }
